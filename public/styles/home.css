@@ -1,0 +1,526 @@
+/* Mobile-first ChatGPT-like UI (chat/home specific styles) */
+
+:root{
+  --bg: #0f1724;
+  --panel: #0b1220;
+  --muted: #9aa4b2;
+  --text: #e6eef8;
+  --muted-2: #b0bfcf;
+  --accent: #10a37f;
+  --card: #0f1728;
+  --soft: rgba(255,255,255,0.04);
+  --input-bg: rgba(255,255,255,0.03);
+  --radius: 10px;
+  --gap: 12px;
+  --max-width: 1200px;
+  --sidebar-width: 300px;
+  --transition: 0.18s ease;
+  font-size: 16px;
+  --composer-height: 76px; /* used to reserve space for composer on mobile */
+}
+
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--text)}
+a{color:inherit}
+button{font-family:inherit}
+
+/* App shell */
+.chat-shell{
+  display:flex;
+  width:100%;
+  min-height:100vh;
+  justify-content:center;
+  padding:12px;
+}
+
+/* Container */
+.chat-app{
+  width:100%;
+  max-width:var(--max-width);
+  display:flex;
+  gap:16px;
+  height:calc(100vh - 24px);
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+}
+
+/* Sidebar (conversations) */
+.sidebar{
+  width:var(--sidebar-width);
+  min-width:var(--sidebar-width);
+  background:linear-gradient(180deg, rgba(29, 26, 26, 0.644), rgba(9, 8, 8, 0.743));
+  border-right:1px solid rgba(255,255,255,0.03);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.sidebar .top{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.new-chat-btn{
+  display:block;
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px dashed rgba(255,255,255,0.04);
+  background:transparent;
+  color:var(--text);
+  cursor:pointer;
+  font-weight:600;
+  transition:transform 0.14s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.new-chat-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.45);
+}
+.search{
+  display:flex;
+  margin-top:6px;
+  gap:8px;
+  align-items:center;
+}
+.search input{
+  flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:var(--input-bg);color:var(--text)
+}
+.conversations{
+  margin-top:8px;
+  overflow:auto;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding-right:6px;
+}
+.conv-item{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background var(--transition), transform var(--transition);
+  color:var(--muted-2);
+  position:relative;
+}
+.conv-item:hover{ background: rgba(255,255,255,0.02); transform:translateY(-1px) }
+.conv-item.active{ background: linear-gradient(90deg, rgba(16,163,127,0.12), rgba(255,255,255,0.02)); color:var(--text) }
+.conv-item > div[style] { /* the flex:1 wrapper we render in JS */
+  min-width:0; /* allow ellipsis within flex */
+}
+.conv-item .title{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.conv-item .preview{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:block;
+  color:var(--muted);
+  font-size:0.86rem;
+}
+.conv-icon{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.02);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--text);
+  flex:0 0 36px;
+  font-weight:700;
+  margin-right:8px;
+}
+.conv-item .conv-delete{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  width:36px;
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--muted-2);
+  padding:0;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity 0.12s linear, transform 0.12s ease, box-shadow 0.12s ease;
+  font-size:18px;
+  line-height:1;
+}
+.conv-item:hover .conv-delete,
+.conv-item.active .conv-delete{
+  opacity:0;
+  transform:translateY(-50%) scale(1.02);
+  color:var(--text);
+  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+}
+.conv-item .conv-delete:focus{
+  outline:none;
+  box-shadow: 0 0 0 4px rgba(16,163,127,0.12);
+}
+
+/* conversation popover menu (three-dots) */
+.menu-popover{
+  position:absolute;
+  z-index:9999;
+  min-width:160px;
+  background:rgba(6,10,18,0.95); /* more opaque, darker like ChatGPT popover */
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.04);
+  border-radius:10px;
+  box-shadow:0 18px 50px rgba(2,6,23,0.6);
+  padding:6px 6px;
+  animation: pop 0.12s ease;
+  pointer-events:auto;
+  backdrop-filter: blur(6px);
+}
+@keyframes pop{ from{ transform:translateY(-6px) scale(.98); opacity:0 } to{ transform:translateY(0) scale(1); opacity:1 } }
+.menu-popover button{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  width:100%;
+  padding:8px 10px;
+  border-radius:8px;
+  background:transparent;
+  border:0;
+  color:var(--muted-2);
+  cursor:pointer;
+  text-align:left;
+  font-size:0.95rem;
+}
+.menu-popover button:hover{ background:rgba(255,255,255,0.02); color:var(--text) }
+.menu-popover .danger{ color:#ff7b7b }
+
+/* ensure popover always above other elements */
+.menu-popover { z-index: 9999; }
+
+/* archived conversation style */
+.conv-item.archived{ opacity:0.55; filter:grayscale(.05) }
+
+/* overflow and long-word handling for messages and titles */
+.msg .body, .conv-item .title, .conv-item .preview{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  -webkit-hyphens:auto;
+  hyphens:auto;
+}
+
+/* subtle hover for the three-dot icon to match ChatGPT feel */
+.conv-item .conv-delete{
+  transition: transform .12s ease, opacity .12s ease, background .12s ease;
+}
+.conv-item .conv-delete:hover{ transform:scale(1.04); background:rgba(255,255,255,0.02) }
+
+/* show archived indicator badge */
+.archived-badge{
+  font-size:0.72rem;
+  color:var(--muted);
+  margin-left:8px;
+}
+
+/* small tooltip-ish label for theme toggle (optional) */
+.icon-btn[title]{ position:relative }
+
+/* Main chat panel */
+.chat-main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height: 0; /* allow children with overflow to size correctly in flex layout (fix mobile scroll) */
+}
+
+/* Main header */
+.header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+}
+.header .title{ font-weight:700 }
+.header .controls{ margin-left:auto; display:flex; gap:8px; align-items:center }
+
+/* Messages area */
+/* changed to be a natural scroll container (remove justify-content: flex-end) so top messages are not hidden */
+.messages-wrap{
+  flex: 1;
+  min-height: 0; /* CRITICAL: allow overflow inside flex item on mobile */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* ensure smooth native touch scrolling */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.02));
+  word-break:break-word;
+  scroll-behavior:smooth;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--composer-height) + 24px); /* reserve space so last message isn't hidden behind the composer */
+  scroll-padding-bottom: calc(var(--composer-height) + 32px); /* ensure when focusing input there's extra scrollable area */
+}
+
+/* ensure message list grows naturally from top (no bottom anchoring) */
+.messages-wrap .msg-row{
+  /* unchanged appearance; messages stack from the top and container scrolls */
+}
+
+/* Message row and bubble */
+.msg-row{ display:flex; gap:10px; align-items:flex-start; max-width:100% }
+.msg-row.me{ justify-content:flex-end; align-items:flex-end }
+.msg{
+  max-width:76%;
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:0.95rem;
+  line-height:1.35;
+  word-break:break-word;
+}
+.msg.user{
+  background:linear-gradient(90deg,#06b58b 0%, #10a37f 60%);
+  color:white;
+  border-radius:14px 14px 6px 14px;
+  box-shadow: 0 10px 30px rgba(16,163,127,0.12), inset 0 -1px 0 rgba(255,255,255,0.04);
+  transform-origin:100% 50%;
+  transition:transform 0.12s ease, box-shadow 0.12s ease;
+}
+.msg.assistant{
+  background:rgba(255,255,255,0.02);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.03);
+  border-radius:12px 12px 12px 6px;
+}
+.msg-row{ position:relative; }
+.msg .actions{
+  position:absolute;
+  top:-6px;
+  right:-44px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  opacity:0;
+  transform:translateY(4px);
+  transition:opacity 0.12s ease, transform 0.12s ease;
+}
+.msg-row:hover .msg .actions,
+.msg-row:focus-within .msg .actions{
+  opacity:1;
+  transform:translateY(0);
+}
+.action-btn{
+  width:36px;
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.02);
+  color:var(--muted);
+  cursor:pointer;
+  font-size:14px;
+}
+.action-btn:active{ transform:translateY(1px) }
+
+/* Meta time */
+.msg .meta{ display:block;margin-top:8px;font-size:0.72rem;color:var(--muted);opacity:0.9;text-align:right }
+
+/* Typing indicator */
+.typing{
+  display:flex;gap:8px;align-items:center;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.02);width:fit-content;
+}
+.dots{display:flex;gap:6px;align-items:center}
+.dots span{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:0.8;animation:dot 1s infinite}
+.dots span:nth-child(2){animation-delay:0.12s}
+.dots span:nth-child(3){animation-delay:0.24s}
+@keyframes dot{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+/* Composer */
+.composer{
+  display:flex;
+      border-radius: 1rem;
+    display: flex
+;
+    gap: 10px;
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #72777e;
+    align-items: center;
+    background: linear-gradient(180deg, #6f676736, rgba(0, 0, 0, 0.02));
+  
+  border-top:1px solid rgba(255,255,255,0.02);
+  position:sticky;
+  bottom:env(safe-area-inset-bottom, 12px);
+  z-index:60;
+  min-height:var(--composer-height);
+  padding:12px 14px;
+  margin:0; /* reset margins when sticking */
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -10px 30px rgba(2,6,23,0.4);
+}
+.composer textarea{
+  flex:1; resize:none; min-height:44px; max-height:160px; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.03);
+  background:transparent; color:var(--text); outline:none; font-size:0.95rem;
+  margin:0;
+}
+.send-actions{ display:flex; gap:8px; align-items:center }
+.icon-btn{ background:transparent;  color:var(--muted); padding:8px; border-radius:8px; cursor:pointer }
+
+/* Mobile behavior: hide sidebar by default, show toggle */
+@media(max-width:880px){
+  .chat-app{ flex-direction:column; height:100vh; }
+  .sidebar{ position:fixed; left:-320px; top:12px; bottom:12px; z-index:40; transition:left var(--transition); box-shadow:0 12px 40px rgba(0,0,0,0.6) }
+  body.show-sidebar .sidebar{ left:12px }
+  .chat-main{ margin-left:0; }
+  .header .menu-toggle{ display:inline-flex }
+}
+
+/* Desktop: show sidebar */
+@media(min-width:881px){
+  .header .menu-toggle{ display:none }
+}
+
+/* Make action buttons accessible on small screens (tap) */
+@media(max-width:880px){
+  .msg .actions{ right:8px; top:auto; bottom:-44px; flex-direction:row; }
+  .msg-row:hover .msg .actions{ opacity:1; transform:translateY(0) }
+}
+
+/* small visual for delete confirmation state if needed */
+.btn-danger{
+  background:rgba(255,80,80,0.14);
+  color:#ff6e6e;
+  border-color:rgba(255,80,80,0.08);
+}
+
+/* Sidebar scrollbar styling */
+.sidebar::-webkit-scrollbar{ width:10px }
+.sidebar::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.03); border-radius:8px; border:2px solid transparent; background-clip:padding-box }
+
+/* overlay shown on mobile when sidebar opens */
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:50;
+  transition:opacity 0.18s ease;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* visible overlay state */
+body.show-sidebar .sidebar-overlay{
+  opacity:1;
+  pointer-events:auto;
+  display:block;
+}
+
+/* dim / disable main when sidebar open on mobile */
+@media (max-width:880px){
+  body.show-sidebar .chat-main{
+    pointer-events:none;
+    filter:brightness(0.7) blur(0.6px);
+    transition:filter 0.18s ease;
+  }
+}
+
+/* center empty state and make it H2-like */
+.empty-state{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  padding:12px;
+  text-align:center;
+  color:var(--muted);
+}
+.empty-state h2{
+  margin:0;
+  font-size:1.25rem;
+  font-weight:600;
+  color:var(--muted-2);
+}
+
+/* stronger styling for user (sent) messages */
+.msg.user{
+  background:linear-gradient(90deg,#06b58b 0%, #10a37f 60%);
+  color:white;
+  border-radius:14px 14px 6px 14px;
+  box-shadow: 0 10px 30px rgba(16,163,127,0.12), inset 0 -1px 0 rgba(255,255,255,0.04);
+  transform-origin:100% 50%;
+  transition:transform 0.12s ease, box-shadow 0.12s ease;
+}
+.msg-row.me .msg.user{ align-self:flex-end; }
+.msg.user:hover{
+  transform:translateY(-4px);
+  box-shadow: 0 16px 40px rgba(16,163,127,0.18);
+}
+
+/* ensure message body wraps nicely */
+.msg .body{ word-break:break-word; white-space:pre-wrap; }
+
+/* keep overlay popovers above overlay */
+.menu-popover{ z-index:10000; }
+
+/* Sidebar close button (visible on mobile) */
+.sidebar .close-btn{
+  background:transparent;
+  
+  color:var(--muted-2);
+  font-size:18px;
+  padding:6px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.sidebar .close-btn:hover{ background:rgba(255,255,255,0.02); color:var(--text) }
+
+/* Sidebar actions area */
+.sidebar .sidebar-actions{
+  margin-top:auto;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Delete all button style */
+#deleteAllBtn{
+  width:100%;
+  padding:8px 10px;
+  border-radius:8px;
+  background:transparent;
+  color:var(--muted-2);
+  border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+  transition: background .12s ease, transform .12s ease;
+}
+#deleteAllBtn:hover{ background:rgba(255,255,255,0.02); color:var(--text); transform:translateY(-2px) }
+
+/* show close button more prominently on narrow screens */
+@media(max-width:880px){
+  .sidebar .close-btn{ display:inline-flex; margin-left:auto }
+}
+@media(min-width:881px){
+  /* hide close button on desktop (not needed) */
+  .sidebar .close-btn{ display:none }
+}

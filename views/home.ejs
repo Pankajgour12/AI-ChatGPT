@@ -1,11 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>home</title>
-</head>
-<body>
 
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChatGPT</title>
+    <link rel="stylesheet" href="/styles/home.css">
+</head>
+
+<body>
+    <div class="chat-shell">
+        <!-- overlay for mobile sidebar -->
+        <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true" style="display:none;"></div>
+
+        <div class="chat-app" role="application">
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="top">
+                    <button class="new-chat-btn" id="newChatBtn">+ New chat</button>
+                    <!-- show archived toggle -->
+                    <button id="showArchivedBtn" class="icon-btn" title="Show archived" aria-pressed="false"
+                        style="margin-left:8px">🤖</button>
+                    <!-- close sidebar button (mobile) -->
+                    <button id="closeSidebarBtn" class="icon-btn close-btn" title="Close" aria-label="Close sidebar"
+                        style="margin-left:auto">✕</button>
+                </div>
+
+                <div class="search">
+                    <input id="searchConv" placeholder="Search conversations" />
+                </div>
+
+                <div class="conversations" id="conversationsList">
+                    <!-- conversation items injected here -->
+                </div>
+
+                <!-- delete all control at bottom of sidebar -->
+                <div class="sidebar-actions" style="margin-top:8px;">
+                    <button id="deleteAllBtn" class="new-chat-btn"
+                        style="background:transparent;border:1px solid rgba(255,255,255,0.04);">Delete all
+                        conversations</button>
+                </div>
+            </aside>
+
+            <!-- Main -->
+            <section class="chat-main">
+                <div class="header">
+                    <button class="menu-toggle icon-btn" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+                    <div class="title" id="currentTitle">New chat</div>
+                    <div class="controls">
+                        <button class="icon-btn" id="clearBtn" title="Clear conversation">Clear</button>
+                        <!-- theme toggle -->
+                        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌓</button>
+                    </div>
+                </div>
+
+                <div class="messages-wrap" id="messagesWrap" role="log" aria-live="polite">
+                    <!-- messages injected here -->
+                    <div class="empty-state" id="emptyState">
+                        <h2>What can I help with?</h2>
+                    </div>
+                </div>
+
+                <form id="composer" class="composer" autocomplete="off">
+                    <button type="button" class="icon-btn" id="addBtn" title="Add">+</button>
+                    <textarea id="messageInput" name="message" placeholder="Ask Anything..." rows="1"></textarea>
+                    <div class="send-actions">
+
+                        <button type="submit" id="sendBtn" class="icon-btn" title="Send">➤</button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </div>
+<!-- Socket.IO Client -->
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+
+<script>
+    const socket=io();
+</script>
+
+
+    <script src="/scripts/chat.js" defer></script>
 </body>
+
 </html>
